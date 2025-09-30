@@ -1,0 +1,27 @@
+{
+  "name": "whisper-auto-rename-vedio",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "engines": {
+    "node": ">=22.11"
+  },
+  "dependencies": {
+    "dayjs": "^1.11.18",
+    "opencc-js": "^1.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "^24.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}
