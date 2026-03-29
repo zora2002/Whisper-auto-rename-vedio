@@ -42,3 +42,19 @@ npm run dev
 5. 文字處理: 清理文字內容並轉換為繁體中文
 6. 檔案重命名: 根據語音內容生成新的檔案名稱
 7. 統計報告: 顯示處理結果和執行時間
+
+
+## 模組架構 (SDD)
+
+本專案採用 **Specification-Driven Development (SDD)** 開發，規格定義於 [openspec/](openspec/) 目錄。
+
+| 模組 | 檔案 | 職責 |
+|------|------|------|
+| `file-scanner` | [src/modules/scanner.ts](src/modules/scanner.ts) | 掃描目錄，過濾符合命名模式的 MP4 檔案 |
+| `file-preprocessor` | [src/modules/preprocessor.ts](src/modules/preprocessor.ts) | 將 Screen Recording 格式轉換為標準 `HHMMSS_YYYYMMDD.mp4` |
+| `transcriber` | [src/modules/transcriber.ts](src/modules/transcriber.ts) | 呼叫本地 Whisper CLI 進行語音轉文字 |
+| `text-processor` | [src/modules/textProcessor.ts](src/modules/textProcessor.ts) | 清理 Whisper 輸出、移除時間戳記、轉換繁體中文 |
+| `file-renamer` | [src/modules/renamer.ts](src/modules/renamer.ts) | 根據處理後文字產生安全檔名並執行重命名 |
+| `processor` | [src/modules/processor.ts](src/modules/processor.ts) | 主流程協調器，串接上述模組 |
+
+規格文件位於 [openspec/changes/archive/2026-03-29-whisper-auto-rename-video/](openspec/changes/archive/2026-03-29-whisper-auto-rename-video/)。
