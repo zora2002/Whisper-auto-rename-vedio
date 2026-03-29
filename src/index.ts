@@ -9,9 +9,11 @@ async function main(): Promise<void> {
   
   // 使用當前工作目錄
   const directory = process.cwd();
+  // 選擇模型
+  const model = WhisperModel.base
   
   try {
-    await processDirectory(directory, WhisperModel.base);
+    await processDirectory(directory, model);
     console.log('✅ 處理完成！');
   } catch (error) {
     console.error('❌ 處理失敗:', error instanceof Error ? error.message : String(error));
