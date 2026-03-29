@@ -1,4 +1,4 @@
-import { WhisperModel, ProcessingStats } from '../types/index.js';
+import { WhisperModel } from '../types/index.js';
 
 // ===== 配置 =====
 
