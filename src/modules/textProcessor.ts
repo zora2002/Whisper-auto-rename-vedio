@@ -7,20 +7,18 @@ const converter = OpenCC.Converter({ from: 'cn', to: 'tw' });
  * 清理 Whisper 輸出文字（移除時間戳記、統一標點、去除首尾空白）
  * spec: text-processor
  */
-function cleanText(text: string): string {
+export function cleanText(text: string): string {
   let cleaned = text;
+  // index 0: 移除 VTT 時間戳記 [HH:MM.SSS --> HH:MM.SSS]
+  // index 1: 英文逗號 → 中文逗號
+  // index 2: 換行 → 中文逗號（作為斷句分隔）
+  // index 3: 多餘空白直接移除
+  const replacements = ['', '，', '，', ''];
   CONFIG.text.cleanupPatterns.forEach((pattern, index) => {
-    if (index === 0) {
-      cleaned = cleaned.replace(pattern, '');
-    } else if (index === 1) {
-      cleaned = cleaned.replace(pattern, '，');
-    } else if (index === 2) {
-      cleaned = cleaned.replace(pattern, '，');
-    } else if (index === 3) {
-      cleaned = cleaned.replace(pattern, '，');
-    }
+    cleaned = cleaned.replace(pattern, replacements[index] ?? '');
   });
-  return cleaned.trim().slice(0, -1);
+  // 移除結尾可能因換行轉換產生的多餘逗號
+  return cleaned.trim().replace(/，$/, '');
 }
 
 /**
