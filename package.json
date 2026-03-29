@@ -7,7 +7,9 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "",
   "license": "ISC",
@@ -22,6 +24,7 @@
     "@types/node": "^24.1.0",
     "ts-node": "^10.9.2",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^4.1.2"
   }
 }
