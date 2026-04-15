@@ -11,11 +11,13 @@ const execAsync = util.promisify(exec);
  * 尋找 Whisper 輸出的 .txt 暫存檔
  */
 function findTextFile(inputFile: string): string | null {
+  const dir = path.dirname(inputFile);
   const baseName = path.basename(inputFile, path.extname(inputFile));
   const candidates = [
-    `${baseName}.txt`,
+    path.join(dir, `${baseName}.txt`),
     `${inputFile}.txt`,
     inputFile.replace('.mp4', '.txt'),
+    `${baseName}.txt`,
   ];
   return candidates.find(f => fs.existsSync(f)) ?? null;
 }
@@ -30,7 +32,8 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
   }
 
   const verboseFlag = CONFIG.whisper.verbose ? '--verbose' : '';
-  const command = `whisper "${inputFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} ${verboseFlag}`.trim();
+  const outputDir = path.dirname(inputFile);
+  const command = `whisper "${inputFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} --output_dir "${outputDir}" ${verboseFlag}`.trim();
 
   let txtFile: string | null = null;
 
@@ -62,9 +65,10 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
     }
     throw new Error(`Whisper 執行失敗: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
-    if (txtFile && fs.existsSync(txtFile)) {
+    const toDelete = txtFile ?? findTextFile(inputFile);
+    if (toDelete && fs.existsSync(toDelete)) {
       try {
-        fs.unlinkSync(txtFile);
+        fs.unlinkSync(toDelete);
       } catch (e) {
         console.warn('⚠️ 清理暫存檔失敗:', e instanceof Error ? e.message : String(e));
       }

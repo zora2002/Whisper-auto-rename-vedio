@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import dayjs from '../helper/dayjs.js';
 import CONFIG from '../helper/config.js';
 
@@ -36,12 +37,12 @@ function preprocessFileName(fileName: string): string {
  * 預處理檔案陣列，將 Screen Recording 格式轉換為標準格式
  * spec: file-preprocessor
  */
-export function preprocessFiles(files: string[]): string[] {
+export function preprocessFiles(files: string[], baseDir: string): string[] {
   return files.map(file => {
     const newFileName = preprocessFileName(file);
     if (newFileName !== file) {
       try {
-        fs.renameSync(file, newFileName);
+        fs.renameSync(path.join(baseDir, file), path.join(baseDir, newFileName));
       } catch (error) {
         throw new Error(`重命名檔案失敗: ${error instanceof Error ? error.message : String(error)}`);
       }
