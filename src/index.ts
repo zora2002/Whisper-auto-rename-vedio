@@ -1,5 +1,7 @@
 import { processDirectory } from './modules/processor.js';
 import { WhisperModel } from './types/index.js';
+import { ensureFolders } from './helper/folders.js';
+import CONFIG from './helper/config.js';
 
 /**
  * 從 CLI 參數解析 Whisper model
@@ -13,9 +15,9 @@ function parseModel(): WhisperModel {
     if (Object.values(WhisperModel).includes(requested as WhisperModel)) {
       return requested as WhisperModel;
     }
-    console.warn(`⚠️ 不支援的模型 "${requested}"，使用預設 base。可用: ${Object.values(WhisperModel).join(', ')}`);
+    console.warn(`⚠️ 不支援的模型 "${requested}"，使用預設 ${CONFIG.whisper.defaultModel}。可用: ${Object.values(WhisperModel).join(', ')}`);
   }
-  return WhisperModel.base;
+  return CONFIG.whisper.defaultModel;
 }
 
 /**
@@ -26,6 +28,9 @@ async function main(): Promise<void> {
 
   // 使用當前工作目錄
   const directory = process.cwd();
+
+  // 確保資料夾結構存在
+  ensureFolders(directory);
   // 從 CLI 參數選擇模型，預設 base
   const model = parseModel();
   console.log(`🤖 使用模型: ${model}`);

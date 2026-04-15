@@ -4,7 +4,7 @@ import { WhisperModel } from '../types/index.js';
 
 const CONFIG = {
   whisper: {
-    defaultModel: WhisperModel.base,
+    defaultModel: WhisperModel.medium,
     language: 'zh',
     outputFormat: 'txt',
     verbose: false,
