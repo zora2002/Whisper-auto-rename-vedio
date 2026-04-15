@@ -3,7 +3,7 @@
 ### Requirement: 呼叫本地 Whisper CLI 進行語音辨識
 `transcribe(inputFile: string, model: WhisperModel): Promise<string>` SHALL 執行本地 `whisper` CLI 指令，對指定 MP4 檔案進行語音辨識，並回傳辨識出的純文字內容。
 
-指令格式：`whisper "<inputFile>" --model <model> --language zh --output_format txt`
+指令格式：`whisper "<inputFile>" --model <model> --language zh --output_format txt --clip_timestamps "0,15"`
 
 執行後 SHALL 找到 Whisper 輸出的 `.txt` 檔案，讀取其內容並回傳，最後刪除該暫存檔。
 

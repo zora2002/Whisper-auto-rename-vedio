@@ -33,7 +33,7 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
 
   const verboseFlag = CONFIG.whisper.verbose ? '--verbose' : '';
   const outputDir = path.dirname(inputFile);
-  const command = `whisper "${inputFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} --output_dir "${outputDir}" ${verboseFlag}`.trim();
+  const command = `whisper "${inputFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} --output_dir "${outputDir}" --clip_timestamps "0,15" ${verboseFlag}`.trim();
 
   let txtFile: string | null = null;
 
