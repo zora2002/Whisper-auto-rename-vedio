@@ -50,7 +50,7 @@ describe('renameFile', () => {
     renameFile('070442_20250719.mp4', '衝突測試');
 
     const [, newName] = mockRenameSync.mock.calls[0] as [string, string];
-    expect(newName).toContain('_1_');
+    expect(newName).toMatch(/_1\.mp4$/);
   });
 
   it('processedText 為空時拋出錯誤', () => {
