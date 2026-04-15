@@ -1,60 +1,86 @@
 # Whisper 自動重命名影片工具
 
-## OpenAI Whisper 等級
+用影片的語音內容自動幫影片改名。例如影片裡說「今天來介紹一下產品功能」，執行後檔名就會變成 `今天來介紹一下產品功能_070442_20250719.mp4`。
 
-- `tiny` - 最快，但準確度較低
-- `base` - 平衡速度和準確度
-- `small` - 較高準確度
-- `medium` - 高準確度（預設）
-- `large` - 最高準確度，但較慢
+---
 
+## 前置需求
 
-## MP4 影片處理規則
+- [Node.js](https://nodejs.org/) 18+
+- [Python](https://www.python.org/) 3.8+
+- [OpenAI Whisper](https://github.com/openai/whisper)（本地安裝）
 
-- 標準格式 `HHMMSS_YYYYMMDD.mp4`
-- Screen Recording 格式 `Screen_Recording_YYYYMMDD_HHMMSS.mp4` 
-  - 自動轉換為 `HHMMSS_YYYYMMDD.mp4` 格式後再進行處理
-- Screen Recording 帶秒數調整格式 `Screen_Recording_YYYYMMDD_HHMMSS_數字.mp4`
-  - 自動轉換為 `HHMMSS_YYYYMMDD.mp4` 格式後再進行處理
-  - 支援多個數字，如 `_1_2_3` 會加總秒數 (1+2+3=6秒)
-
-處理範例:
-```
-Screen_Recording_20250719_070442.mp4     → 070442_20250719.mp4
-Screen_Recording_20250719_070442_1.mp4   → 070443_20250719.mp4 (加1秒)
-Screen_Recording_20250719_070442_1_2.mp4 → 070445_20250719.mp4 (加3秒)
-Screen_Recording_20250719_070442_1_2_3.mp4 → 070448_20250719.mp4 (加6秒)
+```bash
+pip install openai-whisper
 ```
 
-## 啟動
+---
+
+## 安裝
+
+```bash
+npm install
+```
+
+---
+
+## 使用方式
+
+### 第一步：把影片放進 `rename-notyet/` 資料夾
+
+第一次執行時，程式會自動建立以下資料夾結構：
+
+```
+你的目錄/
+├── rename-notyet/        ← 把要處理的影片放這裡
+└── rename-result/
+    ├── success/          ← 處理成功的影片會移到這裡
+    └── fail/             ← 處理失敗的影片會移到這裡
+```
+
+影片檔名需符合以下格式之一：
+
+| 格式 | 範例 |
+|------|------|
+| 標準格式 | `070442_20250719.mp4` |
+| Screen Recording | `Screen_Recording_20250719_070442.mp4` |
+| Screen Recording（含秒數偏移） | `Screen_Recording_20250719_070442_1.mp4` |
+
+> Screen Recording 格式會自動轉換為標準格式再處理。
+
+### 第二步：執行
 
 ```bash
 npm run dev
 ```
 
+### 第三步：查看結果
 
-## 工作流程
+- 成功 → 重命名後的檔案移至 `rename-result/success/`
+- 失敗 → 原始檔案移至 `rename-result/fail/`，並在 console 顯示錯誤原因
 
-1. 檔案掃描: 掃描指定目錄中的 MP4 檔案
-2. 格式識別: 識別檔案命名模式 (標準格式、Screen Recording 格式)
-3. 預處理: 將 Screen Recording 格式轉換為標準格式
-4. 語音識別: 使用 Whisper 模型進行語音轉文字
-5. 文字處理: 清理文字內容並轉換為繁體中文
-6. 檔案重命名: 根據語音內容生成新的檔案名稱
-7. 統計報告: 顯示處理結果和執行時間
+---
 
+## 選擇 Whisper 模型
 
-## 模組架構 (SDD)
+預設使用 `medium` 模型，可透過 `--model` 參數切換：
 
-本專案採用 **Specification-Driven Development (SDD)** 開發，規格定義於 [openspec/](openspec/) 目錄。
+```bash
+npm run dev -- --model small
+```
 
-| 模組 | 檔案 | 職責 |
-|------|------|------|
-| `file-scanner` | [src/modules/scanner.ts](src/modules/scanner.ts) | 掃描目錄，過濾符合命名模式的 MP4 檔案 |
-| `file-preprocessor` | [src/modules/preprocessor.ts](src/modules/preprocessor.ts) | 將 Screen Recording 格式轉換為標準 `HHMMSS_YYYYMMDD.mp4` |
-| `transcriber` | [src/modules/transcriber.ts](src/modules/transcriber.ts) | 呼叫本地 Whisper CLI 進行語音轉文字 |
-| `text-processor` | [src/modules/textProcessor.ts](src/modules/textProcessor.ts) | 清理 Whisper 輸出、移除時間戳記、轉換繁體中文 |
-| `file-renamer` | [src/modules/renamer.ts](src/modules/renamer.ts) | 根據處理後文字產生安全檔名並執行重命名 |
-| `processor` | [src/modules/processor.ts](src/modules/processor.ts) | 主流程協調器，串接上述模組 |
+| 模型 | 速度 | 準確度 |
+|------|------|--------|
+| `tiny` | 最快 | 較低 |
+| `base` | 快 | 普通 |
+| `small` | 中 | 較高 |
+| `medium` | 慢 | 高（預設） |
+| `large` | 最慢 | 最高 |
 
-規格文件位於 [openspec/changes/archive/2026-03-29-whisper-auto-rename-video/](openspec/changes/archive/2026-03-29-whisper-auto-rename-video/)。
+---
+
+## 命名規則
+
+- 取語音辨識結果前 **20 個字元**作為檔名前綴
+- 組合格式：`<語音內容>_<原始檔名>.mp4`
+- 若目標檔名已存在，自動加數字後綴（`_1`、`_2`…）避免覆蓋
