@@ -13,7 +13,7 @@ beforeEach(() => {
 
 describe('scanDirectory', () => {
   it('回傳符合標準格式的檔案 (HHMMSS_YYYYMMDD.mp4)', () => {
-    mockReaddirSync.mockReturnValue(['070442_20250719.mp4', 'notes.txt'] as any);
+    mockReaddirSync.mockReturnValue(['070442_20250719.mp4', 'notes.txt'] as string[]);
 
     const result = scanDirectory('/some/dir');
 
@@ -21,7 +21,7 @@ describe('scanDirectory', () => {
   });
 
   it('回傳 Screen Recording 格式的檔案', () => {
-    mockReaddirSync.mockReturnValue(['Screen_Recording_20250719_070442.mp4', 'other.mp4'] as any);
+    mockReaddirSync.mockReturnValue(['Screen_Recording_20250719_070442.mp4', 'other.mp4'] as string[]);
 
     const result = scanDirectory('/some/dir');
 
@@ -29,7 +29,7 @@ describe('scanDirectory', () => {
   });
 
   it('回傳 Screen Recording with Seconds 格式的檔案', () => {
-    mockReaddirSync.mockReturnValue(['Screen_Recording_20250719_070442_10_20.mp4'] as any);
+    mockReaddirSync.mockReturnValue(['Screen_Recording_20250719_070442_10_20.mp4'] as string[]);
 
     const result = scanDirectory('/some/dir');
 
@@ -37,7 +37,7 @@ describe('scanDirectory', () => {
   });
 
   it('目錄中沒有符合的檔案時回傳空陣列', () => {
-    mockReaddirSync.mockReturnValue(['readme.md', 'notes.txt', 'random.mp4'] as any);
+    mockReaddirSync.mockReturnValue(['readme.md', 'notes.txt', 'random.mp4'] as string[]);
 
     const result = scanDirectory('/some/dir');
 
@@ -45,7 +45,7 @@ describe('scanDirectory', () => {
   });
 
   it('目錄為空時回傳空陣列', () => {
-    mockReaddirSync.mockReturnValue([] as any);
+    mockReaddirSync.mockReturnValue([] as string[]);
 
     const result = scanDirectory('/some/dir');
 
@@ -58,7 +58,7 @@ describe('scanDirectory', () => {
       'Screen_Recording_20250719_080000.mp4',
       'Screen_Recording_20250719_090000_5_10.mp4',
       'unrelated.mp4',
-    ] as any);
+    ] as string[]);
 
     const result = scanDirectory('/some/dir');
 
