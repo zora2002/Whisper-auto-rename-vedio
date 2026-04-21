@@ -5,18 +5,19 @@ import CONFIG from './helper/config.js';
 
 /**
  * 從 CLI 參數解析 Whisper model
- * 用法: npm run dev -- --model small
+ * 用法: npm run dev -- tiny
  */
 function parseModel(): WhisperModel {
   const args = process.argv.slice(2);
-  const modelIndex = args.indexOf('--model');
-  if (modelIndex !== -1 && args[modelIndex + 1]) {
-    const requested = args[modelIndex + 1];
-    if (Object.values(WhisperModel).includes(requested as WhisperModel)) {
-      return requested as WhisperModel;
+
+  // 支援位置參數: npm run dev -- tiny
+  for (const arg of args) {
+    if (Object.values(WhisperModel).includes(arg as WhisperModel)) {
+      return arg as WhisperModel;
     }
-    console.warn(`⚠️ 不支援的模型 "${requested}"，使用預設 ${CONFIG.whisper.defaultModel}。可用: ${Object.values(WhisperModel).join(', ')}`);
   }
+
+  console.warn(`⚠️ 未指定模型或不支援，使用預設 ${CONFIG.whisper.defaultModel}。可用: ${Object.values(WhisperModel).join(', ')}`);
   return CONFIG.whisper.defaultModel;
 }
 
