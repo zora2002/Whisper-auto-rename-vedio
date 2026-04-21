@@ -41,7 +41,7 @@ export async function processText(raw: string): Promise<string> {
 
   try {
     const traditional = converter(cleaned);
-    console.log('🈳 繁體中內容:', traditional);
+    console.log('📄 繁體中內容:', traditional);
     return traditional;
   } catch (error) {
     console.warn('⚠️ 本地轉換失敗:', error instanceof Error ? error.message : String(error));
