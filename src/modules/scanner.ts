@@ -11,9 +11,7 @@ export function scanDirectory(directory: string): string[] {
     console.log(`目錄中共有 ${files.length} 個檔案/資料夾`);
 
     const targetFiles = files.filter(file =>
-      CONFIG.file.filePatterns.some(pattern => file.match(pattern)) ||
-      file.match(CONFIG.file.screenRecordingPattern) ||
-      file.match(CONFIG.file.screenRecordingWithSecondsPattern)
+      CONFIG.file.supportedExtensions.some(ext => file.toLowerCase().endsWith(ext))
     );
 
     console.log(`\n找到 ${targetFiles.length} 個符合模式的檔案`);

@@ -1,17 +1,18 @@
 ## ADDED Requirements
 
-### Requirement: 掃描目錄中的 MP4 檔案
-`scanDirectory(dir: string): string[]` SHALL 讀取指定目錄的所有檔案，並回傳符合以下任一命名模式的檔名陣列（不含路徑）：
-- 標準格式：`/^\d{6}_\d{8}\.mp4$/`
-- Screen Recording 格式：`/^Screen_Recording_\d{8}_\d{6}\.mp4$/`
-- Screen Recording 帶秒數格式：`/^Screen_Recording_\d{8}_\d{6}((?:_\d+)+)\.mp4$/`
+### Requirement: 掃描目錄中所有 MP4 檔案
+`scanDirectory(dir: string): string[]` SHALL 讀取指定目錄的所有檔案，並回傳所有副檔名為 `.mp4`（大小寫不敏感）的檔名陣列（不含路徑）。不限制命名格式。
 
-#### Scenario: 目錄含有符合格式的檔案
+#### Scenario: 目錄含有 .mp4 檔案
 - **WHEN** 目錄中有 `070442_20250719.mp4` 和 `note.txt`
 - **THEN** 回傳 `["070442_20250719.mp4"]`，不含 `note.txt`
 
-#### Scenario: 目錄不含任何符合格式的檔案
-- **WHEN** 目錄中沒有符合任何模式的 MP4 檔案
+#### Scenario: 一般中文命名的 .mp4 也被回傳
+- **WHEN** 目錄中有 `賓士貓柴犬火車旅行影片.mp4`
+- **THEN** 回傳 `["賓士貓柴犬火車旅行影片.mp4"]`
+
+#### Scenario: 目錄不含任何 .mp4 時回傳空陣列
+- **WHEN** 目錄中沒有 `.mp4` 檔案
 - **THEN** 回傳空陣列 `[]`
 
 #### Scenario: 目錄不存在或無法讀取
