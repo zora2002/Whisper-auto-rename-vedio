@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { exec } from 'child_process';
 import util from 'util';
 import { WhisperModel } from '../types/index.js';
@@ -7,9 +8,6 @@ import CONFIG from '../helper/config.js';
 
 const execAsync = util.promisify(exec);
 
-/**
- * 尋找 Whisper 輸出的 .txt 暫存檔
- */
 function findTextFile(inputFile: string): string | null {
   const dir = path.dirname(inputFile);
   const baseName = path.basename(inputFile, path.extname(inputFile));
@@ -23,6 +21,16 @@ function findTextFile(inputFile: string): string | null {
 }
 
 /**
+ * 用 ffmpeg 截取影片前 N 秒，回傳暫存檔路徑
+ */
+async function trimVideo(inputFile: string, seconds: number): Promise<string> {
+  const tmpFile = path.join(os.tmpdir(), `whisper_trim_${Date.now()}.mp4`);
+  const command = `ffmpeg -y -i "${inputFile}" -t ${seconds} -c copy "${tmpFile}" -loglevel error`;
+  await execAsync(command);
+  return tmpFile;
+}
+
+/**
  * 呼叫本地 Whisper CLI 進行語音辨識，回傳辨識文字
  * spec: transcriber
  */
@@ -32,12 +40,14 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
   }
 
   const verboseFlag = CONFIG.whisper.verbose ? '--verbose' : '';
-  const outputDir = path.dirname(inputFile);
-  const command = `whisper "${inputFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} --output_dir "${outputDir}" --clip_timestamps "0,15" ${verboseFlag}`.trim();
-
+  let trimmedFile: string | null = null;
   let txtFile: string | null = null;
 
   try {
+    trimmedFile = await trimVideo(inputFile, CONFIG.whisper.clipSeconds);
+    const outputDir = os.tmpdir();
+    const command = `whisper "${trimmedFile}" --model ${model} --language ${CONFIG.whisper.language} --output_format ${CONFIG.whisper.outputFormat} --output_dir "${outputDir}" ${verboseFlag}`.trim();
+
     const { stderr } = await execAsync(command, {
       maxBuffer: CONFIG.whisper.maxBuffer,
       timeout: CONFIG.whisper.timeout,
@@ -53,7 +63,7 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
       console.warn('⚠️ 錯誤輸出:', stderr);
     }
 
-    txtFile = findTextFile(inputFile);
+    txtFile = findTextFile(trimmedFile);
     if (!txtFile) {
       throw new Error('找不到轉換生成的文字檔');
     }
@@ -65,13 +75,11 @@ export async function transcribe(inputFile: string, model: WhisperModel): Promis
     }
     throw new Error(`Whisper 執行失敗: ${error instanceof Error ? error.message : String(error)}`);
   } finally {
-    const toDelete = txtFile ?? findTextFile(inputFile);
-    if (toDelete && fs.existsSync(toDelete)) {
-      try {
-        fs.unlinkSync(toDelete);
-      } catch (e) {
-        console.warn('⚠️ 清理暫存檔失敗:', e instanceof Error ? e.message : String(e));
-      }
+    if (trimmedFile && fs.existsSync(trimmedFile)) {
+      try { fs.unlinkSync(trimmedFile); } catch { /* ignore */ }
+    }
+    if (txtFile && fs.existsSync(txtFile)) {
+      try { fs.unlinkSync(txtFile); } catch { /* ignore */ }
     }
   }
 }
